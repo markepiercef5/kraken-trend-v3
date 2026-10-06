@@ -74,7 +74,7 @@ ATR_MULT = 2.0
 EMA_FAST = 50
 EMA_SLOW = 200
 
-RISK_PER_TRADE = float(os.environ.get("RISK", "13.5"))  # dollars lost if the exit is hit ((balance - 9700) / 20)
+RISK_PER_TRADE = float(os.environ.get("RISK", "11.85"))  # dollars lost if the exit is hit ((balance - 9700) / 20); $9,936.91 on Oct 6 2:09 PM
 POSITION_CAP = 4000.0    # never put more than this in one coin
 MIN_STOP_PCT, MAX_STOP_PCT = 0.3, 15.0  # skip exits that are unrealistically tight or wide
 MAX_OPEN_TRADES = 4
