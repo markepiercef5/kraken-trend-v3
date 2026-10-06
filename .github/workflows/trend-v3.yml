@@ -1,0 +1,70 @@
+name: Kraken Trend v3 checks
+
+# How this stays on time for free:
+# GitHub's own hourly schedule often runs late or skips, so instead one
+# "watcher" job stays awake for about 5.5 hours and runs each check at the
+# exact minute itself. The hourly schedule below just makes sure a new
+# watcher is always waiting to take over (only one runs at a time).
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "watch (normal), check, or morning"
+        default: "watch"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trend-v3
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      TEXT_TO: ${{ secrets.TEXT_TO }}
+      TZ: America/Phoenix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Watch and run checks on time
+        run: |
+          git config user.name "trend-v3-bot"
+          git config user.email "trend-v3-bot@users.noreply.github.com"
+          save() {
+            git add state.json
+            git diff --cached --quiet || git commit -qm "state update"
+            git pull -q --rebase && git push -q || true
+          }
+          run() { git pull -q --rebase || true; python kraken_trend_v3.py "$1" || true; save; }
+
+          MODE="${{ github.event.inputs.mode || 'watch' }}"
+          if [ "$MODE" != "watch" ]; then run "$MODE"; exit 0; fi
+
+          END=$(( $(date +%s) + 5*3600 + 30*60 ))   # stay awake ~5.5 hours
+          # Started late in the hour? Catch up on this hour's check now
+          # (duplicates are blocked, and stale TAKEs are skipped by the chase rule).
+          M=$(date +%-M); if [ "$M" -ge 2 ] && [ "$M" -lt 40 ]; then run check; fi
+
+          while [ "$(date +%s)" -lt "$END" ]; do
+            NOW=$(date +%s)
+            NEXT=$(( (NOW/3600 + 1)*3600 + 120 ))      # next hh:02
+            [ "$NEXT" -ge "$END" ] && break
+            sleep $(( NEXT - NOW ))
+            run check
+            if [ "$(date +%H)" = "07" ]; then          # 7:30 AM Arizona recap
+              sleep $(( $(date -d 'today 07:30' +%s) - $(date +%s) )) 2>/dev/null || true
+              run morning
+            fi
+          done
