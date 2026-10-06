@@ -1,10 +1,34 @@
 {
   "open_trades": {
-    "S":     {"entry": 0.04413, "qty": 7496.795, "initial_stop": 0.0427661, "exit_line": 0.0427661, "opened": "2026-10-05T23:24"},
-    "ZRO":   {"entry": 2.20,    "qty": 97.4352,  "initial_stop": 2.0989,    "exit_line": 2.0989,    "opened": "2026-10-06T06:40"},
-    "JUP":   {"entry": 0.3592,  "qty": 1549.583, "initial_stop": 0.348706,  "exit_line": 0.348706,  "opened": "2026-10-06T10:10"},
-    "ASTER": {"entry": 0.748,   "qty": 1186.8785,"initial_stop": 0.736383,  "exit_line": 0.736383,  "opened": "2026-10-06T11:08"}
+    "ASTER": {
+      "entry": 0.748,
+      "exit_line": 0.736383,
+      "initial_stop": 0.736383,
+      "opened": "2026-10-06T11:08",
+      "qty": 1186.8785
+    },
+    "JUP": {
+      "entry": 0.3592,
+      "exit_line": 0.348706,
+      "initial_stop": 0.348706,
+      "opened": "2026-10-06T10:10",
+      "qty": 1549.583
+    },
+    "S": {
+      "entry": 0.04413,
+      "exit_line": 0.0427661,
+      "initial_stop": 0.0427661,
+      "opened": "2026-10-05T23:24",
+      "qty": 7496.795
+    },
+    "ZRO": {
+      "entry": 2.2,
+      "exit_line": 2.0989,
+      "initial_stop": 2.0989,
+      "opened": "2026-10-06T06:40",
+      "qty": 97.4352
+    }
   },
-  "signals": [],
-  "sent": {}
+  "sent": {},
+  "signals": []
 }
