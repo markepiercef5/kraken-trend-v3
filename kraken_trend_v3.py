@@ -263,7 +263,7 @@ def send(text, detail=None, subject="Kraken"):
     if NTFY_TOPIC:  # push to the ntfy app on your phone
         req = urllib.request.Request(
             f"https://ntfy.sh/{NTFY_TOPIC}", data=text.encode(),
-            headers={"Title": subject, "Priority": "high" if subject.startswith(("TAKE", "SELL")) else "default"},
+            headers={"Title": subject, "Priority": "urgent" if subject.startswith(("TAKE", "SELL")) else "default", "Tags": "rotating_light"},
         )
         urllib.request.urlopen(req, timeout=20).read()
     if not (SMTP_USER and SMTP_PASS):
