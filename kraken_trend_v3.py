@@ -89,8 +89,9 @@ STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.jso
 KRAKEN = "https://api.kraken.com/0/public"
 
 # Delivery (set as GitHub Secrets; if missing, messages are just printed)
-SMTP_USER = os.environ.get("GMAIL_ADDRESS", "")
-SMTP_PASS = os.environ.get("GMAIL_APP_PASSWORD", "")
+SMTP_USER = os.environ.get("SMTP_USER") or os.environ.get("GMAIL_ADDRESS", "")
+SMTP_PASS = os.environ.get("SMTP_PASS") or os.environ.get("GMAIL_APP_PASSWORD", "")
+SMTP_HOST = os.environ.get("SMTP_HOST") or "smtp.gmail.com"   # Zoho: smtppro.zoho.com
 TEXT_TO = os.environ.get("TEXT_TO", "")      # optional email-to-text address
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")  # your ntfy phone-app topic (main delivery)
 EMAIL_TO = os.environ.get("EMAIL_TO", "")    # full-detail backup email
@@ -268,9 +269,10 @@ def send(text, detail=None, subject="Kraken"):
         urllib.request.urlopen(req, timeout=20).read()
     if not (SMTP_USER and SMTP_PASS):
         return
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as s:
+    stamp = "[" + az_now().strftime("%-I:%M%p") + "] "   # real alerts always start with the time
+    with smtplib.SMTP_SSL(SMTP_HOST, 465) as s:
         s.login(SMTP_USER, SMTP_PASS)
-        for to, body in ((TEXT_TO, text), (EMAIL_TO, (detail or text))):
+        for to, body in ((TEXT_TO, stamp + text), (EMAIL_TO, (detail or text))):
             if not to:
                 continue
             m = EmailMessage()
