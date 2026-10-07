@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  actions: write              # lets each watcher line up the next one
 
 concurrency:
   group: trend-v3
@@ -36,6 +37,7 @@ jobs:
       SMTP_PASS: ${{ secrets.SMTP_PASS }}
       SMTP_HOST: ${{ secrets.SMTP_HOST }}
       TZ: America/Phoenix
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -56,6 +58,9 @@ jobs:
           if [ "$MODE" != "watch" ]; then run "$MODE"; exit 0; fi
 
           END=$(( $(date +%s) + 5*3600 + 30*60 ))   # stay awake ~5.5 hours
+          # Line up the next watcher right away. It waits in the queue and
+          # starts the moment this one finishes, so there is never a gap.
+          gh workflow run trend-v3.yml -R "$GITHUB_REPOSITORY" -f mode=watch || true
           # Started late in the hour? Catch up on this hour's check now
           # (duplicates are blocked, and stale TAKEs are skipped by the chase rule).
           M=$(date +%-M); if [ "$M" -ge 2 ] && [ "$M" -lt 40 ]; then run check; fi
