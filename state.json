@@ -2,7 +2,7 @@
   "open_trades": {
     "INJ": {
       "entry": 8.11,
-      "exit_line": 8.026,
+      "exit_line": 8.04,
       "initial_stop": 7.8761416144442755,
       "opened": "2026-11-05T00:02-07:00",
       "qty": 28.264968922506164
